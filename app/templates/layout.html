@@ -1,0 +1,26 @@
+<!doctype html>
+<title>Foobar</title>
+<link rel="stylesheet" href="{{url_for('static',filename='style.css')}}" title="" type="text/css" />
+<div class="page">
+	<a href='/'><h1>Grade Predictor</h1></a>
+	<div class="metanav">
+		{% if not session.logged_in and not session.admin_logged_in %}
+			<a href="{{ url_for('login') }}">log in</a>
+			<a href="{{ url_for('admin_login') }}">log in as admin</a>
+        {% elif session.admin_logged_in %}
+            <a href="{{ url_for('show_user') }}">add user</a>
+			<a href="{{ url_for('logout') }}">logout</a>
+		{% else %}
+            <a href="{{ url_for('show_user') }}">{{ user.username }}</a>
+			<a href="{{ url_for('logout') }}">logout</a>
+		{% endif %}
+	</div>
+	{% for message in get_flashed_messages() %}
+		<div class="flash">
+			{{ message }}
+		</div>
+	{% endfor %}
+
+	{% block body %}
+	{% endblock %}
+</div>

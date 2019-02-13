@@ -1,0 +1,81 @@
+{% extends "layout.html" %}
+{% block body %}
+    <h2>Student: {{ student.name }} - {{ student.id }}</h2>
+	<div>
+        <br><br> <strong>id</strong> <br> 
+                 {{ student.id }} 
+        <br><br> <strong>name</strong> <br> 
+                 {{ student.name }} 
+        <br><br> <strong>email</strong> <br> 
+                 {{ student.email }} 
+        <br><br> <strong>english_score</strong> <br> 
+                 {{ student.english_score }} 
+        <br><br> <strong>admitted_year</strong> <br> 
+                 {{ student.admitted_year }} 
+        <br><br> <strong>required_credits</strong> <br> 
+                 {{ student.required_credits }} 
+        <br><br> <strong>nationality</strong> <br> 
+                 {{ student.nationality }} 
+        <br><br> <strong>age</strong> <br> 
+                 {{ student.age }} 
+        <br><br> <strong>previous_major</strong> <br> 
+                 {{ student.previous_major }} 
+        <br><br> <strong>previous_gpa</strong> <br> 
+                 {{ student.previous_gpa }} 
+        <br><br> <strong>gender</strong> <br> 
+                 {{ student.gender }} 
+        <br><br> <strong>marital_status</strong> <br> 
+                 {{ student.marital_status }}
+        <br><br> <strong>previous_institute</strong> <br> 
+                 {{ student.previous_institute }}
+        <br><br> <strong>semester1_credits</strong> <br> 
+                 {{ student.semester1_credits }}
+        <br><br> <strong>semester1_gpa</strong> <br> 
+                 {{ student.semester1_gpa }}
+        <br><br> <strong>left_with_1</strong> <br> 
+                 {{ student.left_with_1 }}
+        <br><br> <strong>semester2_credits</strong> <br> 
+                 {{ student.semester2_credits }}
+        <br><br> <strong>semester2_gpa</strong> <br> 
+                 {{ student.semester2_gpa }}
+        <br><br> <strong>left_with_2</strong> <br> 
+                 {{ student.left_with_2 }}
+        <br><br> <strong>semester3_credits</strong> <br> 
+                 {{ student.semester3_credits }}
+        <br><br> <strong>semester3_gpa</strong> <br> 
+                 {{ student.semester3_gpa }}
+        <br><br> <strong>left_with_3</strong> <br> 
+                 {{ student.left_with_3 }}
+        <br><br> <strong>semester4_credits</strong> <br> 
+                 {{ student.semester4_credits }}
+        <br><br> <strong>semester4_gpa</strong> <br> 
+                 {{ student.semester4_gpa }}
+        <br><br> <strong>cgpa</strong> <br> 
+                 {{ student.cgpa }}
+
+
+        <br><a href="/add_info?student_id={{ student.id }}"> Add additional details.</a>
+        <br>
+	</div>
+
+    <br><button onclick="javascript: document.location = '/student_graphs?student_id={{ student.id  }}'"> view graph </button>
+
+    <hr>
+    Lower Range: <input type="number" id="lower_range"></input><br>
+    Upper Range: <input type="number" id="higher_range"></input><br>
+    <br><button onclick="predict(1);"> predict first semester </button>
+    <br><button onclick="predict(2);"> predict second semester</button>
+    <br><button onclick="predict(3);"> predict third semester </button>
+    <br><button onclick="predict(4);"> predict fourth semester</button>
+    <script charset="utf-8">
+        function predict(semester) {
+            let lower_range = document.getElementById("lower_range").value
+            let higher_range = document.getElementById("higher_range").value
+
+            document.location = `/predict_sem${semester}?student_id={{ student.id }}&lower=${lower_range}&higher=${higher_range}` 
+        }
+    </script>
+	<br>
+	<a href="/">Back</a>
+
+{% endblock %}

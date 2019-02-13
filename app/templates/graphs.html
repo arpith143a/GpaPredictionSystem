@@ -1,0 +1,523 @@
+{% extends "layout.html" %}
+{% block body %}
+    <h2>User: {{ user.name }} - {{ user.id }}</h2>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/0.8.9/jquery.csv.min.js" charset="utf-8"></script>
+    <script src="http://www.chartjs.org/dist/2.7.2/Chart.bundle.js" ></script>
+
+    <br>Semester:
+    <br>
+    <select name="semester" id="semester" >
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+    </select>
+
+    <br>Field of Study:
+    <br><input type="text" value="" name="fos" id="fos" placeholder="Field of Study"/>
+
+    <br>Previous GPA:
+    <br>
+    <select name="previous_gpa" id="previous_gpa">
+        <option value=""></option>
+        <option value="2.75">2.75</option>
+        <option value="3.00">3.0</option>
+        <option value="3.50">3.5</option>
+        <option value="3.95">3.95</option>
+        <option value="4.00">4.0</option>
+    </select>
+
+    <br>Current GPA:
+    <br>
+    <select name="current_gpa" id="current_gpa">
+        <option value=""></option>
+        <option value="2.75"><2.75</option>
+        <option value="3.00"><3.0</option>
+        <option value="3.50"><3.5</option>
+        <option value="3.95"><3.95</option>
+        <option value="4.00"><4.0</option>
+    </select>
+
+    <br>Income:
+    <br>
+    <select name="income" id="income">
+        <option value=""></option>
+        <option value="high income">Upper Income</option>
+        <option value="low income">Lower Income</option>
+        <option value="upper middle income">Upper Middle Income</option>
+        <option value="lower middle income">Lower Middle Income</option>
+    </select>
+
+    <br>Age:
+    <br>
+    <select name="age" id="age">
+        <option value=""></option>
+        <option value="U25">U25</option>
+        <option value="U30">U30</option>
+        <option value="U37">U37</option>
+        <option value="U44">U44</option>
+        <option value="G45">G45</option>
+    </select>
+
+    <br>English Score:
+    <br><input type="text" value="" name="english_score" id="english_score" placeholder="english score"/>
+
+    <br><br><input type="button" onclick="render_graph()" name="plot_graph" id="plot_graph" value="plot graph" />
+
+    <br>
+    <canvas id="canvas_0"></canvas>
+    <canvas id="canvas_1"></canvas>
+
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="https://d3js.org/d3-queue.v3.min.js"></script>
+    <script src="https://d3js.org/topojson.v1.min.js"></script>
+
+    <script charset="utf-8">
+        let csvFileUrl = "{{ url_for('static', filename='graph.csv') }}"
+        // let csvFileUrl = "{{ url_for('static', filename='graph_nofos.csv') }}"
+
+        //......................................................................
+        function GPAGraph(canvas_id,
+            X,
+            labels_x=[1, 2, 3, 4],
+            labels_y=[1,2],
+            title="Title",
+            x_axis_name = "X Axis",
+            y_axis_name = "Y Axis"
+        ) {
+            this.X = X;
+            this.labels_x = labels_x;
+            this.labels_y = labels_y;
+            this.title = title;
+            this.x_axis_name = x_axis_name;
+            this.y_axis_name = y_axis_name;
+
+            this._refreshConfig = () => {
+
+                let datasets = []
+                for (i = 0; i < X.length; i++) {
+                    datasets.push({
+                            label: this.labels_y[i],
+                            backgroundColor: this.chartColors[i],
+                            borderColor: this.chartColors[i],
+                            data: this.X[i],
+                            fill: false,
+                    });
+                }
+                this.config = {
+                    type: 'line',
+                    data: {
+                        labels: this.labels_x,
+                        datasets: datasets
+                    },
+                    options: {
+                        animation: false,
+                        responsive: true,
+                        title: {
+                            display: true,
+                            text: this.title
+                        },
+                        tooltips: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        hover: {
+                            mode: 'nearest',
+                            intersect: true
+                        },
+                        scales: {
+                            xAxes: [{
+                                display: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: this.x_axis_name
+                                }
+                            }],
+                            yAxes: [{
+                                display: true,
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: this.y_axis_name
+                                }
+                            }]
+                        }
+                    }
+                };
+
+            }
+
+            this.chartColors = [
+                'rgb(255, 99, 132)',
+                'rgb(255, 159, 64)',
+                'rgb(255, 205, 86)',
+                'rgb(75, 192, 192)',
+                'rgb(54, 162, 235)',
+                'rgb(153, 102, 255)',
+                'rgb(201, 203, 207)'
+            ];
+            this.render = () => {
+                this._refreshConfig();
+
+                document.getElementById(canvas_id).innerHTML = "";
+                var ctx = document.getElementById(canvas_id).getContext('2d');
+                this.myLine = new Chart(ctx, this.config);
+            }
+
+        }
+        //......................................................................
+
+        function render_error_graph(sem, canvas_0, canvas_1) {
+            let gpa_key = `sem${sem}_gpa`
+            let pred_key = `sem${sem}_pred`
+
+            d3.csv(csvFileUrl, function(error, data) {
+                // Sort array.
+                for(let i = 1; i < data.length; i++){
+                    let keyObj = data[i]
+                    let j = i - 1;
+                    while (j >= 0 && +data[j][gpa_key] > +keyObj.sem1_gpa) {
+                        data[j + 1] = data[j];
+                        j = j - 1;
+                    }
+                    data[j + 1] = keyObj;
+                }
+
+                // Save all the data as arrays.
+                let i = 0;
+
+                classes_1 = []
+                classes_1[1] = []
+                classes_1[2] = []
+                classes_1[3] = []
+                classes_1[4] = []
+                classes_1[5] = []
+                classes_1[6] = []
+
+                classes_2 = []
+                classes_2[1] = []
+                classes_2[2] = []
+                classes_2[3] = []
+                classes_2[4] = []
+                classes_2[5] = []
+                classes_2[6] = []
+
+                classes_3 = []
+                classes_3[1] = []
+                classes_3[2] = []
+                classes_3[3] = []
+                classes_3[4] = []
+                classes_3[5] = []
+                classes_3[6] = []
+
+                classes_4 = []
+                classes_4[1] = []
+                classes_4[2] = []
+                classes_4[3] = []
+                classes_4[4] = []
+                classes_4[5] = []
+                classes_4[6] = []
+
+                let count = 0;
+
+                // DOM Elements
+                let fos = document.getElementById("fos").value
+                let previous_gpa = document.getElementById("previous_gpa").value
+                let current_gpa = document.getElementById("current_gpa").value
+                let income = document.getElementById("income").value
+                let age = document.getElementById("age").value
+                let english_score = document.getElementById("english_score").value
+
+                let sem_true = []
+                let sem_pred= []
+
+                data.forEach(function(d) {
+                    // if (+d[pred_key] == 0 || +d[pred_key] > 4) {
+                    //     return;
+                    // }
+                    count++;
+                    // if(count > 100) return;
+
+                    if (fos) {
+                        if(d.fos.toLowerCase().trim() != fos.toLowerCase().trim())
+                            return;
+                    }
+                    if (previous_gpa) {
+                        switch (+previous_gpa) {
+                            case 2.75:
+                                if(!(2.75 > +d.prev_gpa && +d.prev_gpa >= 2.00)) return;
+                                break;
+                            case 3:
+                                if(!(3.00 > +d.prev_gpa && +d.prev_gpa >= 2.75)) return;
+                                break;
+                            case 3.5:
+                                if(!(3.50 > +d.prev_gpa && +d.prev_gpa >= 3.00)) return;
+                                break;
+                            case 3.95:
+                                if(!(3.95 > +d.prev_gpa && +d.prev_gpa >= 3.50)) return;
+                                break;
+                            case 4:
+                                if(!(4.00 >=+d.prev_gpa && +d.prev_gpa >= 3.95)) return;
+                                break;
+                            default:
+                                return;
+                        }
+                    }
+                    if (current_gpa) {
+                        switch (+current_gpa) {
+                            case 2.75:
+                                if(!(2.75 > +d[gpa_key] && +d[gpa_key] >= 2.00)) return;
+                                break;
+                            case 3:
+                                if(!(3.00 > +d[gpa_key] && +d[gpa_key] >= 2.75)) return;
+                                break;
+                            case 3.5:
+                                if(!(3.50 > +d[gpa_key] && +d[gpa_key] >= 3.00)) return;
+                                break;
+                            case 3.95:
+                                if(!(3.95 > +d[gpa_key] && +d[gpa_key] >= 3.50)) return;
+                                break;
+                            case 4:
+                                if(!(4.00 >=+d[gpa_key] && +d[gpa_key] >= 3.95)) return;
+                                break;
+                            default:
+                                return;
+                        }
+                    }
+                    if (income) {
+                        if(d.income.toLowerCase().trim() != income.toLowerCase().trim())
+                            return;
+                    }
+                    if (age) {
+                        if(d.age.toLowerCase().trim() != age.toLowerCase().trim())
+                            return;
+                    }
+                    if (english_score) {
+                        if(+d.english_score != +english_score)
+                            return;
+                    }
+
+                    gpa_key = "sem1_gpa"
+                    pred_key = "sem1_pred"
+                    if(+d[gpa_key][0] < 2.5){
+                        classes_1[1].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(2.5<= d[gpa_key] && d[gpa_key] < 2.75){
+                        classes_1[2].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(2.75<= d[gpa_key]  && d[gpa_key]< 3.0){
+                        classes_1[3].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(3.0<= d[gpa_key]  && d[gpa_key]< 3.5){
+                        classes_1[4].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(3.5<= d[gpa_key]  && d[gpa_key]<  3.96){
+                        classes_1[5].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(d[gpa_key] >=  3.96){
+                        classes_1[6].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+
+                    gpa_key = "sem2_gpa"
+                    pred_key = "sem2_pred"
+                    if(d[gpa_key] < 2.5){
+                        classes_2[1].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(2.5<= d[gpa_key] && d[gpa_key]< 2.75){
+                        classes_2[2].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(2.75<= d[gpa_key]  && d[gpa_key]< 3.0){
+                        classes_2[3].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(3.0<= d[gpa_key]  && d[gpa_key]< 3.5){
+                        classes_2[4].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(3.5<= d[gpa_key]  && d[gpa_key]<  3.96){
+                        classes_2[5].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(d[gpa_key] >=  3.96){
+                        classes_2[6].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+
+                    gpa_key = "sem3_gpa"
+                    pred_key = "sem3_pred"
+                    if(d[gpa_key] < 2.5){
+                        classes_3[1].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(2.5<= d[gpa_key]  && d[gpa_key]< 2.75){
+                        classes_3[2].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(2.75<= d[gpa_key]  && d[gpa_key]< 3.0){
+                        classes_3[3].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(3.0<= d[gpa_key]  && d[gpa_key]< 3.5){
+                        classes_3[4].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(3.5<= d[gpa_key]  && d[gpa_key]<  3.96){
+                        classes_3[5].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(d[gpa_key] >=  3.96){
+                        classes_3[6].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+
+                    gpa_key = "sem4_gpa"
+                    pred_key = "sem4_pred"
+                    if(d[gpa_key] < 2.5){
+                        classes_4[1].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(2.5<= d[gpa_key]  && d[gpa_key]< 2.75){
+                        classes_4[2].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(2.75<= d[gpa_key]  && d[gpa_key]< 3.0){
+                        classes_4[3].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(3.0<= d[gpa_key]  && d[gpa_key]< 3.5){
+                        classes_4[4].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(3.5<= d[gpa_key]  && d[gpa_key]<  3.96){
+                        classes_4[5].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+                    if(d[gpa_key] >=  3.96){
+                        classes_4[6].push( Math.abs(Number(d[gpa_key]) - Number(d[pred_key])) )
+                    }
+
+                    sem_true.push(d[gpa_key])
+                    sem_pred.push(d[pred_key])
+
+                });
+                //..............................................................
+                function mean(values) {
+                    if (values.length == 0) return;
+                    let sum = values.reduce((previous, current) => current += previous);
+                    let avg = sum / values.length;
+                    // console.log(avg)
+                    return avg
+                }
+                function mode(arr) {
+                    let numMapping = {};
+                    let greatestFreq = 0;
+                    let mode;
+                    arr.forEach(function findMode(number) {
+                        numMapping[number] = (numMapping[number] || 0) + 1;
+
+                        if (greatestFreq < numMapping[number]) {
+                            greatestFreq = numMapping[number];
+                            mode = number;
+                        }
+                    });
+                    return +mode;
+                }
+                let new_graph0 = new GPAGraph(canvas_0, [ sem_true, sem_pred ])
+                new_graph0.title = `Semester ${sem}`
+
+                new_graph0.labels_y = ["True GPA", "GPA Prediction"]
+                new_graph0.y_axis_name = "GPA"
+
+                new_graph0.labels_x = sem_true.map( (x) => {
+                    x = Number(x)
+                    // if(x == 0 || x == 2 || x == 2.5 || x == 3 || x == 3.5 || x == 4)
+                    //     return x
+                    // else
+                        return " "
+                } ) // array of empty string
+                new_graph0.x_axis_name = "GPA Range"
+
+                console.log(
+[
+                    [
+                        mean(classes_1[1]),
+                        mean(classes_1[2]),
+                        mean(classes_1[3]),
+                        mean(classes_1[4]),
+                        mean(classes_1[5]),
+                        mean(classes_1[6]),
+                    ],
+                    [
+                        mean(classes_2[1]),
+                        mean(classes_2[2]),
+                        mean(classes_2[3]),
+                        mean(classes_2[4]),
+                        mean(classes_2[5]),
+                        mean(classes_2[6]),
+                    ],
+                    [
+                        mean(classes_3[1]),
+                        mean(classes_3[2]),
+                        mean(classes_3[3]),
+                        mean(classes_3[4]),
+                        mean(classes_3[5]),
+                        mean(classes_3[6]),
+                    ],
+                    [
+                        mean(classes_4[1]),
+                        mean(classes_4[2]),
+                        mean(classes_4[3]),
+                        mean(classes_4[4]),
+                        mean(classes_4[5]),
+                        mean(classes_4[6]),
+                    ],
+
+                ]
+)
+
+                let new_graph1 = new GPAGraph(canvas_1, [
+                    [
+                        mean(classes_1[1]),
+                        mean(classes_1[2]),
+                        mean(classes_1[3]),
+                        mean(classes_1[4]),
+                        mean(classes_1[5]),
+                        mean(classes_1[6]),
+                    ],
+                    [
+                        mean(classes_2[1]),
+                        mean(classes_2[2]),
+                        mean(classes_2[3]),
+                        mean(classes_2[4]),
+                        mean(classes_2[5]),
+                        mean(classes_2[6]),
+                    ],
+                    [
+                        mean(classes_3[1]),
+                        mean(classes_3[2]),
+                        mean(classes_3[3]),
+                        mean(classes_3[4]),
+                        mean(classes_3[5]),
+                        mean(classes_3[6]),
+                    ],
+                    [
+                        mean(classes_4[1]),
+                        mean(classes_4[2]),
+                        mean(classes_4[3]),
+                        mean(classes_4[4]),
+                        mean(classes_4[5]),
+                        mean(classes_4[6]),
+                    ],
+
+                ])
+                new_graph1.title = `Semester ${sem}`
+
+                new_graph1.labels_y = ["Semester 1", "Semester 2", "Semester 3", "Semester 4"]
+                new_graph1.y_axis_name = "GPA mean error"
+
+                new_graph1.labels_x = ["0-2.49","2.5-2.74", "2.75-2.99", "3.0-3.49", "3.5-3.96","3.96-4.0"]
+                new_graph1.x_axis_name = "GPA"
+
+                new_graph1.render()
+                new_graph0.render()
+                //..............................................................
+
+            });
+        }
+
+    </script>
+    <script charset="utf-8">
+        function render_graph() {
+            render_error_graph(document.getElementById("semester").value, "canvas_0", "canvas_1");
+        }
+    </script>
+
+	<br>
+	<a href="/">Back</a>
+
+{% endblock %}

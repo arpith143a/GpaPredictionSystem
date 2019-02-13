@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block body %}
+    <h2>Student: {{ student.name }} - {{ student.id }}</h2>
+	<form action="/update_student" method="POST">
+        <br><br> <strong>id</strong> <br> <input type='text' placeholder='id' 				name="id"               value="{{ student.id }}"> 
+        <br><br> <strong>name</strong> <br> <input type='text' placeholder='name' 				name="name"             value="{{ student.name }}"> 
+        <br><br> <strong>email</strong> <br> <input type='text' placeholder='email' 			name="email"            value="{{ student.email }}"> 
+        <br><br> <strong>english_score</strong> <br> <input type='text' placeholder='english score' 	name="english_score"    value="{{ student.english_score }}"> 
+        <br><br> <strong>admitted_year</strong> <br> <input type='text' placeholder='year admitted' 	name="year_ad"          value="{{ student.admitted_year }}"> 
+        <br><br> <strong>required_credits</strong> <br> <input type='text' placeholder='total credits'	 	name="total_credits"    value="{{ student.required_credits }}"> 
+        <br><br> <strong>nationality</strong> <br> <input type='text' placeholder='nationality' 		name="nationality"      value="{{ student.nationality }}"> 
+        <br><br> <strong>age</strong> <br> <input type='text' placeholder='age' 				name="age"              value="{{ student.age }}"> 
+        <br><br> <strong>previous_major</strong> <br> <input type='text' placeholder='previous major'	name="prev_major"       value="{{ student.previous_major }}"> 
+        <br><br> <strong>previous_gpa</strong> <br> <input type='text' placeholder='previous gpa' 		name="prev_cgpa"        value="{{ student.previous_gpa }}"> 
+        <br><br> <strong>gender</strong> <br> <input type='text' placeholder='gender' 			name="gender"           value="{{ student.gender }}"> 
+        <br><br> <strong>marital_status</strong> <br> <input type='text' placeholder='marital status' 	name="marital_status"   value="{{ student.marital_status }}">
+        <br><br> <strong>previous_institute</strong> <br> <input type='text' placeholder='previous institute'name="prev_institute"   value="{{ student.previous_institute }}">
+        <br><br> <strong>Field of Study</strong> <br> <input type='text' placeholder='field of study'    name="fos" value="{{ student.fos }}">
+
+        <br><br> <strong>semester1_credits</strong> <br> <input type='text' placeholder='semester1_credits' name='semester1_credits' value="{{ student.semester1_credits }}">
+        <br><br> <strong>semester1_gpa</strong> <br> <input type='text' placeholder='semester1_gpa'     name='semester1_gpa'     value="{{ student.semester1_gpa }}">
+
+        <br><br> <strong>left_with_1</strong> <br> <input type='text' placeholder='left_with_1'       name='left_with_1'       value="{{ student.left_with_1 }}">
+        <br><br> <strong>semester2_credits</strong> <br> <input type='text' placeholder='semester2_credits' name='semester2_credits' value="{{ student.semester2_credits }}">
+        <br><br> <strong>semester2_gpa</strong> <br> <input type='text' placeholder='semester2_gpa'     name='semester2_gpa'     value="{{ student.semester2_gpa }}">
+       
+        <br><br> <strong>left_with_2</strong> <br> <input type='text' placeholder='left_with_2'       name='left_with_2'       value="{{ student.left_with_2 }}">
+        <br><br> <strong>semester3_credits</strong> <br> <input type='text' placeholder='semester3_credits' name='semester3_credits' value="{{ student.semester3_credits }}">
+        <br><br> <strong>semester3_gpa</strong> <br> <input type='text' placeholder='semester3_gpa'     name='semester3_gpa'     value="{{ student.semester3_gpa }}">
+      
+        <br><br> <strong>left_with_3</strong> <br> <input type='text' placeholder='left_with_3'       name='left_with_3'       value="{{ student.left_with_3 }}">
+        <br><br> <strong>semester4_credits</strong> <br> <input type='text' placeholder='semester4_credits' name='semester4_credits' value="{{ student.semester4_credits }}">
+        <br><br> <strong>semester4_gpa</strong> <br> <input type='text' placeholder='semester4_gpa'     name='semester4_gpa'     value="{{ student.semester4_gpa }}">
+        <br><br> <strong>cgpa</strong> <br> <input type='text' placeholder='cgpa'              name='cgpa'              value="{{ student.cgpa }}">
+
+
+		<br> <input type='submit' value='update student'>
+	</form>
+	<br>
+	<a href="/">Back</a>
+
+{% endblock %}

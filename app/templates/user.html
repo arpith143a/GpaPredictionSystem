@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+{% block body %}
+    {% if not admin %}
+    <h2>User: {{ user.name }} - {{ user.id }}</h2>
+	<div>
+        <br><br> <strong>id</strong> <br> 
+                 {{ user.id }} 
+        <br><br> <strong>name</strong> <br> 
+                 {{ user.name }} 
+        <br><br> <strong>username</strong> <br> 
+                 {{ user.username }} 
+        <br><br> <strong>email</strong> <br> 
+                 {{ user.email }} 
+        <br><br> <strong>field of study</strong> <br> 
+                 {{ user.fos }} 
+
+
+        {% if user.picture_url %}
+            <br><br> <img style="max-width:300px;max-height:300px;" src="{{ url_for('static', filename=user.picture_url) }}" alt="display picture"/>
+        {% endif  %}
+        <br>
+	</div>
+
+    <hr>
+    {% endif  %}
+
+    <form action="/update_user" method="post" enctype="multipart/form-data">
+        <br> <strong>name</strong> <br> 
+        <input type="text" value="{{ user.name }}" name="name" id="name"/>
+
+        <br> <strong>username</strong> <br> 
+        <input type="text" value="{{ user.username }}" name="username" id="username"/>
+
+        <br> <strong>email</strong> <br> 
+        <input type="text" value="{{ user.email }}" name="email" id="email"/>      
+
+        <br> <strong>field of study</strong> <br> 
+        <input type="text" value="{{ user.fos }}" name="fos" id="fos"/> 
+
+        <br> <strong>password</strong> <br> 
+        <input type="password" name="password" id="password"/> 
+
+        <br>
+
+    {% if not admin %}
+        Upload display picture:
+        <input type="file" name="file" />
+    {% endif %}
+        <br>
+        <input type="submit" value="Update Profile"/>
+    </form>
+
+    <script charset="utf-8">
+        /*
+        function predict(semester) {
+            let lower_range = document.getElementById("lower_range").value
+            let higher_range = document.getElementById("higher_range").value
+
+            document.location = `/predict_sem${semester}?user_id={{ user.id }}&lower=${lower_range}&higher=${higher_range}` 
+        }*/
+    </script>
+	<br>
+	<a href="/">Back</a>
+
+{% endblock %}

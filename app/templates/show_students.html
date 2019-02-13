@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block body %}
+	{% if session.logged_in %}
+        <!-- Stuff to do if logged in. -->
+        <ul class="entries">
+            {% for entry in entries %}
+                <li><a href="/student?student_id={{ entry.id }}">{{ entry.name }} - {{ entry.id }}</a></li>
+            {% else %}
+                <li><em>no entries</em></li>
+            {% endfor %}
+        </ul>
+        <br>
+        <a href="/add_student">add new student</a>
+        <br>
+        <a href="/graphs">training data statistics</a>
+	{% endif %}
+
+{% endblock %}

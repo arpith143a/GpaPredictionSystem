@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block body %}
+    <h2>Student Name: {{ student.name }} </h2>
+    <style type="text/css" media="screen">
+        tr:nth-child(even) {background-color: #f2f2f2;}
+        td {
+            padding: 10px;
+        }
+    </style>
+    <br>
+    <h2>Semester {{ sem_number }} prediction results</h2>
+    <br>
+        <table>
+            <tr>
+                <td><strong>Credits</strong></td>
+                <td><strong>Predicted GPA</strong></td>
+                <td><strong>Remaining credits</strong></td>
+                <td><strong></strong></td>
+                <td><strong>Eligibility</strong></td>
+            </tr>
+            {% for i in predictions %}
+                <tr>
+                    <td>{{ i.credits }}</td>
+                    <td>{{ i.gpa }}</td>
+                    <td>{{ i.left_credits }}</td>
+                    <td><a href="#" onclick="update_gpa({{ sem_number }}, {{ i.gpa }});"> save </a></td>
+                    <td>{{ i.eligibility }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <script charset="utf-8">
+            function update_gpa(semester, gpa) {
+                document.location = `/update_gpa?student_id={{ student.id }}&sem=${semester}&gpa=${gpa}`
+            }
+        </script>
+    <br>
+    <br>
+	<a href="/">Back</a>
+
+{% endblock %}

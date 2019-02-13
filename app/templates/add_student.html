@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block body %}
+	<h2>Add New Student</h2>
+	<form action="/create_student" method="POST">
+		<br> <input type='text' placeholder='id' 				name="id"> 
+		<br> <input type='text' placeholder='name' 				name="name"> 
+		<br> <input type='text' placeholder='email' 			name="email"> 
+		<br> <input type='text' placeholder='english score' 	name="english_score"> 
+		<br> <input type='text' placeholder='year admitted' 	name="year_ad"> 
+		<br> <input type='text' placeholder='total credits'	 	name="total_credits"> 
+		<br> <input type='text' placeholder='nationality' 		name="nationality"> 
+		<br> <input type='text' placeholder='age' 				name="age"> 
+		<br> <input type='text' placeholder='previous major'	name="prev_major"> 
+		<br> <input type='text' placeholder='previous gpa' 		name="prev_cgpa"> 
+		<br> <input type='text' placeholder='gender' 			name="gender"> 
+		<br> <input type='text' placeholder='marital status' 	name="marital_status">
+		<br> <input type='text' placeholder='previous institute'name="prev_institute">
+		<br> <input type='text' placeholder='field of study'    name="fos">
+		<br> <input type='submit' value='add new student'>
+	</form>
+	<br>
+	<a href="/">Back</a>
+
+{% endblock %}
