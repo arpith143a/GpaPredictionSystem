@@ -6,7 +6,7 @@ from app.model import db
 import os
 
 try:
-    from app.arpiths_shit_code import predict_sem1, predict_sem2, predict_sem3, predict_sem4
+    from app.perdiction_helpers import predict_sem1, predict_sem2, predict_sem3, predict_sem4
 except Exception as e:
     # Dummy functions because fuck tensorflow no being released for python 3.7
     print("** Using dummy perdiction functions.")
